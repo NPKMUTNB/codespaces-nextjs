@@ -25,34 +25,44 @@ export default async function handler(req, res) {
   }
 
   try {
-  const { q = '', lang = 'en', number = '10', day, from, to, key: keyFromQuery } = req.query
-  const data = await fetchWorldNews({ ...pick({ q, lang, number, day, from, to }, ['q','lang','number','day','from','to']), apiKey: process.env.WORLDNEWS_API_KEY || keyFromQuery })
+  const { q = '', lang = 'en', number = '10', day, from, to, 'earliest-publish-date': earliest, 'latest-publish-date': latest, key: keyFromQuery } = req.query
+  const data = await fetchWorldNews({ ...pick({ q, lang, number, day, from, to, earliest, latest }, ['q','lang','number','day','from','to','earliest','latest']), apiKey: process.env.WORLDNEWS_API_KEY || keyFromQuery })
     const items = Array.isArray(data?.news) ? data.news : []
 
     const headers = [
+      'id',
       'title',
+      'text',
+      'summary',
       'url',
-      'hostname',
-      'publish_date',
-      'source',
-      'category',
       'image',
+      'video',
+      'publish_date',
+      'authors',
+      'category',
+      'language',
+      'source_country',
+      'sentiment',
     ]
 
     const rows = [headers]
     for (const n of items) {
-      const hostname = (() => {
-        try { return new URL(n.url).hostname } catch { return '' }
-      })()
       const category = n.category || (data?.raw?.category ?? '')
+      const authors = Array.isArray(n.authors) ? n.authors.join('; ') : (n.authors || '')
       rows.push([
+        n.id ?? '',
         n.title || '',
+        n.text || '',
+        n.summary || '',
         n.url || '',
-        hostname,
-        n.publish_date || '',
-        n.source || '',
-        category || '',
         n.image || '',
+        n.video || '',
+        n.publish_date || '',
+        authors,
+        category || '',
+        n.language || '',
+        n.source_country || '',
+  n.sentiment ?? '',
       ])
     }
 

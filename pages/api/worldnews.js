@@ -14,6 +14,8 @@ export default async function handler(req, res) {
     day,
     from,
     to,
+    'earliest-publish-date': earliest,
+    'latest-publish-date': latest,
     // Allow passing a key in query for quick tests, but prefer env var.
     key: keyFromQuery,
   } = req.query
@@ -21,7 +23,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.WORLDNEWS_API_KEY || keyFromQuery
   try {
   const { fetchWorldNews } = await import('../../lib/worldnews')
-  const data = await fetchWorldNews({ q, lang, number, day, from, to, apiKey })
+  const data = await fetchWorldNews({ q, lang, number, day, from, to, earliest, latest, apiKey })
     return res.status(200).json(data)
   } catch (err) {
     if (err?.code === 'NO_API_KEY') {
