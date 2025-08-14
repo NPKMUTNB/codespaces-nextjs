@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "World News Proxy API",
+    "description": "Proxy + CSV export for World News API (subset & normalization).",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "/", "description": "Current origin" }
+  ],
+  "tags": [
+    { "name": "WorldNews", "description": "Search and export world news" }
+  ],
+  "paths": {
+    "/api/worldnews": {
+      "get": {
+        "tags": ["WorldNews"],
+        "summary": "Search world news (normalized)",
+        "description": "Returns a normalized subset of fields from the upstream World News API.",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": {"type": "string"}, "description": "Keyword / full-text query." },
+          { "name": "lang", "in": "query", "schema": {"type": "string", "default": "en"}, "description": "Language code (e.g. en, th, ja, zh)." },
+          { "name": "number", "in": "query", "schema": {"type": "integer", "default": 10, "minimum": 1, "maximum": 50}, "description": "Max number of items." },
+          { "name": "category", "in": "query", "schema": {"type": "string"}, "description": "Category filter (business, science, technology, world, etc)." },
+          { "name": "earliest-publish-date", "in": "query", "schema": {"type": "string", "format": "date-time"}, "description": "Earliest publish timestamp (YYYY-MM-DD HH:mm:ss)." },
+          { "name": "latest-publish-date", "in": "query", "schema": {"type": "string", "format": "date-time"}, "description": "Latest publish timestamp (YYYY-MM-DD HH:mm:ss)." },
+          { "name": "day", "in": "query", "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "description": "(Legacy) Single day window YYYY-MM-DD." },
+            { "name": "from", "in": "query", "schema": {"type": "string", "format": "date-time"}, "description": "(Legacy) From timestamp ISO 8601." },
+            { "name": "to", "in": "query", "schema": {"type": "string", "format": "date-time"}, "description": "(Legacy) To timestamp ISO 8601." },
+          { "name": "key", "in": "query", "schema": {"type": "string"}, "description": "Optional API key override (dev/testing)." }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "news": { "type": "array", "items": {"$ref": "#/components/schemas/NewsItem"} },
+                    "raw": { "type": "object", "description": "Full upstream payload." }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing API key or invalid parameters" },
+          "405": { "description": "Method not allowed" },
+          "502": { "description": "Upstream failure" },
+          "504": { "description": "Upstream timeout" }
+        }
+      }
+    },
+    "/api/worldnews/csv": {
+      "get": {
+        "tags": ["WorldNews"],
+        "summary": "Export world news search as CSV",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": {"type": "string"} },
+          { "name": "lang", "in": "query", "schema": {"type": "string", "default": "en"} },
+          { "name": "number", "in": "query", "schema": {"type": "integer", "default": 10, "minimum": 1, "maximum": 50} },
+          { "name": "category", "in": "query", "schema": {"type": "string"} },
+          { "name": "earliest-publish-date", "in": "query", "schema": {"type": "string", "format": "date-time"} },
+          { "name": "latest-publish-date", "in": "query", "schema": {"type": "string", "format": "date-time"} },
+          { "name": "day", "in": "query", "schema": {"type": "string"} },
+          { "name": "from", "in": "query", "schema": {"type": "string", "format": "date-time"} },
+          { "name": "to", "in": "query", "schema": {"type": "string", "format": "date-time"} },
+          { "name": "key", "in": "query", "schema": {"type": "string"} }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV export",
+            "content": {
+              "text/csv": {
+                "schema": { "type": "string", "format": "binary", "description": "CSV text (columns: id,title,text,summary,url,image,video,publish_date,authors,category,language,source_country,sentiment)" }
+              }
+            }
+          },
+          "500": { "description": "Export failure" },
+          "405": { "description": "Method not allowed" }
+        }
+      }
+    },
+    "/api/openapi": {
+      "get": {
+        "summary": "Serve OpenAPI specification JSON",
+        "responses": { "200": { "description": "Spec JSON", "content": {"application/json": {"schema": {"type": "object"}} } } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NewsItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": ["integer","string"], "nullable": true },
+          "title": { "type": "string" },
+          "text": { "type": "string", "nullable": true },
+          "summary": { "type": "string", "nullable": true },
+          "url": { "type": "string", "format": "uri" },
+          "image": { "type": "string", "nullable": true },
+          "video": { "type": "string", "nullable": true },
+          "publish_date": { "type": "string" },
+          "authors": { "type": "array", "items": {"type": "string"} },
+          "category": { "type": "string", "nullable": true },
+          "language": { "type": "string", "nullable": true },
+          "source_country": { "type": "string", "nullable": true },
+          "sentiment": { "type": ["number","string"], "nullable": true }
+        }
+      }
+    }
+  }
+}

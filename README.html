@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<title>ค้นหาข่าวโลก — Next.js App (README)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+ body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin: 40px auto; max-width: 860px; line-height: 1.6; padding: 0 20px; }
+ h1,h2,h3 { line-height: 1.25; }
+ pre { background:#1e1e1e; color:#e0e0e0; padding:12px 14px; border-radius:8px; overflow:auto; }
+ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background: #f5f5f7; padding: 2px 5px; border-radius: 4px; }
+ pre code { background: transparent; padding: 0; }
+ a { color:#0366d6; text-decoration:none; }
+ a:hover { text-decoration:underline; }
+ table { border-collapse: collapse; }
+ img { max-width:100%; }
+ ul { padding-left: 1.3em; }
+ hr { border: none; border-top: 1px solid #ddd; margin: 3em 0; }
+ blockquote { margin: 0; padding: .01em 1em; color:#555; border-left:4px solid #ddd; background:#fafafa; }
+ .badge { display:inline-block; background:#eef4ff; color:#124d9c; padding:2px 8px; margin-right:6px; font-size:12px; border-radius:999px; }
+</style>
+</head>
+<body>
+<main>
+<h2>ค้นหาข่าวโลก — Next.js App</h2>
+<p>แอปสำหรับค้นหาข่าวจาก World News API โดยสามารถเลือกภาษาและกรองตามช่วงเวลาเผยแพร่ พร้อมดาวน์โหลดผลลัพธ์เป็นไฟล์ CSV ได้</p>
+<h3>คุณสมบัติ</h3>
+<ul>
+<li>ค้นหาหัวข้อข่าวด้วยคีย์เวิร์ด (q)</li>
+<li>เลือกภาษา (th, en, ja, zh)</li>
+<li>เลือกหมวดหมู่ข่าว (category) เช่น business, science, technology ฯลฯ</li>
+<li>กำหนดช่วงเวลาเผยแพร่ด้วย Earliest/Latest (datetime)</li>
+<li>ดาวน์โหลดผลการค้นหาเป็น CSV</li>
+<li>ส่วนติดต่อผู้ใช้ (UI) ปรับปรุงให้ทันสมัย รองรับหน้าจอเล็ก (responsive) และมีสถานะ Loading, Empty state, Error</li>
+<li>แสดงรูปภาพ (ถ้ามี), meta, sentiment, authors</li>
+<li>เอกสาร API (Swagger UI) ที่ <code>/api-docs</code> และสเปก OpenAPI ที่ <code>/api/openapi</code></li>
+</ul>
+<h3>การติดตั้งและรัน</h3>
+<ol>
+<li>ติดตั้ง dependencies (ถ้ายังไม่ได้ติดตั้ง)
+<pre><code>npm install</code></pre></li>
+<li>ตั้งค่า API key ในไฟล์ <code>.env.local</code>
+<pre><code>WORLDNEWS_API_KEY=ใส่คีย์ของคุณที่นี่</code></pre></li>
+<li>รันแอปแบบพัฒนา
+<pre><code>npm run dev</code></pre>
+เปิดเบราว์เซอร์ที่ http://localhost:3000 (อาจเป็น 3001 หากพอร์ตถูกใช้งาน)</li>
+</ol>
+<h3>การใช้งานหน้าเว็บ</h3>
+<ul>
+<li>พิมพ์คีย์เวิร์ดที่ต้องการค้นหา เลือกภาษา</li>
+<li>เลือกช่วงเวลาเผยแพร่:
+<ul>
+<li>Earliest: เวลาเริ่มต้น (datetime-local)</li>
+<li>Latest: เวลาสิ้นสุด (datetime-local)</li>
+</ul></li>
+<li>กดปุ่ม Search เพื่อแสดงผลลัพธ์</li>
+<li>ปุ่ม Download CSV จะดาวน์โหลดผลลัพธ์ตามพารามิเตอร์ปัจจุบัน</li>
+</ul>
+<p>รูปแบบวันเวลา: ฟอร์มจะส่งค่าเป็น <code>earliest-publish-date</code> และ <code>latest-publish-date</code> ในรูปแบบ <code>YYYY-MM-DD HH:mm:ss</code> ซึ่งตรงกับที่ World News API ต้องการ</p>
+<h3>โครงสร้างข้อมูลข่าว (CSV/แสดงผล)</h3>
+<p>คอลัมน์ที่ส่งออกใน CSV:</p>
+<ul>
+<li>id, title, text, summary, url, image, video, publish_date, authors, category, language, source_country, sentiment</li>
+</ul>
+<h3>API Routes</h3>
+<ul>
+<li><code>GET /api/worldnews</code> — proxy ไปยัง World News API พร้อม normalize ข้อมูลข่าว
+<ul>
+<li>พารามิเตอร์ที่รองรับ: <code>q</code>, <code>lang</code>, <code>number</code>, <code>category</code>, <code>earliest-publish-date</code>, <code>latest-publish-date</code> (และยังรองรับ <code>day</code>, <code>from</code>, <code>to</code>)</li>
+</ul></li>
+<li><code>GET /api/worldnews/csv</code> — ส่งออกผลลัพธ์เป็นไฟล์ CSV ตามพารามิเตอร์เดียวกับข้างต้น</li>
+<li><code>GET /api/openapi</code> — ส่งคืน OpenAPI spec (JSON)</li>
+<li>หน้าเอกสารอินเทอร์แอกทีฟ: <code>GET /api-docs</code> (Swagger UI)</li>
+</ul>
+<p>ตัวอย่างเรียกใช้งาน:</p>
+<pre><code>/api/worldnews?q=ai&lang=th&category=technology&earliest-publish-date=2025-08-01 10:23:00&latest-publish-date=2025-08-08 10:23:00</code></pre>
+<h3>หมายเหตุ</h3>
+<ul>
+<li>หากไม่มีการตั้งค่า WORLDNEWS_API_KEY ระบบจะแจ้งข้อผิดพลาดจาก API route</li>
+<li>หากใส่เฉพาะ Earliest หรือเฉพาะ Latest จะกรองเฉพาะด้านที่กำหนด</li>
+<li>สามารถแก้/ขยายสเปกได้ในไฟล์ <code>openapi.json</code></li>
+<li>รองรับการ build แบบ static + serverless (Next.js)</li>
+</ul>
+<h3>การสร้างไฟล์ HTML ของ README</h3>
+<p>มีไฟล์ <code>README.html</code> ที่ได้จากการแปลงเนื้อหา markdown เพื่อใช้ฝังในระบบอื่น / เอกสารภายใน</p>
+<hr />
+<p><small>Generated from README.md</small></p>
+</main>
+</body>
+</html>

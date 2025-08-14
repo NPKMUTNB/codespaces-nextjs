@@ -8,6 +8,9 @@
 - เลือกหมวดหมู่ข่าว (category) เช่น business, science, technology ฯลฯ
 - กำหนดช่วงเวลาเผยแพร่ด้วย Earliest/Latest (datetime)
 - ดาวน์โหลดผลการค้นหาเป็น CSV
+- ส่วนติดต่อผู้ใช้ (UI) ปรับปรุงให้ทันสมัย รองรับหน้าจอเล็ก (responsive) และมีสถานะ Loading, Empty state, Error
+- แสดงรูปภาพ (ถ้ามี), meta, sentiment, authors
+- เอกสาร API (Swagger UI) ที่ /api-docs และสเปก OpenAPI ที่ /api/openapi
 
 ### การติดตั้งและรัน
 1) ติดตั้ง dependencies (ถ้ายังไม่ได้ติดตั้ง)
@@ -46,6 +49,9 @@ npm run dev
 
 - `GET /api/worldnews/csv` — ส่งออกผลลัพธ์เป็นไฟล์ CSV ตามพารามิเตอร์เดียวกับข้างต้น
 
+- `GET /api/openapi` — ส่งคืน OpenAPI spec (JSON)
+- หน้าเอกสารอินเทอร์แอกทีฟ: `GET /api-docs` (Swagger UI)
+
 ตัวอย่างเรียกใช้งาน:
 ```
 /api/worldnews?q=ai&lang=th&category=technology&earliest-publish-date=2025-08-01%2010:23:00&latest-publish-date=2025-08-08%2010:23:00
@@ -54,4 +60,10 @@ npm run dev
 ### หมายเหตุ
 - หากไม่มีการตั้งค่า WORLDNEWS_API_KEY ระบบจะแจ้งข้อผิดพลาดจาก API route
 - หากใส่เฉพาะ Earliest หรือเฉพาะ Latest จะกรองเฉพาะด้านที่กำหนด
+- สามารถแก้/ขยายสเปกได้ในไฟล์ `openapi.json`
+- รองรับการ build แบบ static + serverless (Next.js)
+
+### การสร้างไฟล์ HTML ของ README
+มีไฟล์ `README.html` ที่ได้จากการแปลงเนื้อหา markdown เพื่อใช้ฝังในระบบอื่น / เอกสารภายใน
+
 

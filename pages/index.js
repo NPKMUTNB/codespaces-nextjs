@@ -72,11 +72,9 @@ function NewsList() {
 
   return (
     <div>
-      <header style={{ marginBottom: 12 }}>
-        <h1 style={{ margin: 0 }}>ค้นหาข่าวโลก</h1>
-        <p style={{ margin: '4px 0 0', color: '#666' }}>
-          ค้นหา เลือกภาษา และกรองตามช่วงเวลาการเผยแพร่ จากนั้นดาวน์โหลดผลลัพธ์เป็น CSV
-        </p>
+      <header>
+        <h1 className={styles.headerTitle}>ค้นหาข่าวโลก</h1>
+        <p className={styles.headerSubtitle}>ค้นหา เลือกภาษา กรองช่วงเวลา และดาวน์โหลดเป็น CSV ได้อย่างรวดเร็ว</p>
       </header>
       <form
         onSubmit={(e) => {
@@ -84,86 +82,78 @@ function NewsList() {
           // triggers useEffect via query state
           setQuery((q) => q.trim())
         }}
-        style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}
+        className={styles.toolbar}
       >
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="search topic"
-          aria-label="search topic"
-          style={{ padding: 6, minWidth: 220 }}
-        />
-        <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="language" style={{ padding: 6 }}>
-          <option value="th">ไทย (th)</option>
-          <option value="en">English (en)</option>
-          <option value="ja">日本語 (ja)</option>
-          <option value="zh">中文 (zh)</option>
-        </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="category" style={{ padding: 6 }}>
-          <option value="">ทุกหมวด</option>
-          <option value="business">Business</option>
-          <option value="science">Science</option>
-          <option value="technology">Technology</option>
-          <option value="world">World</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="sports">Sports</option>
-          <option value="health">Health</option>
-          <option value="politics">Politics</option>
-        </select>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: '#666' }}>Earliest</span>
-          <input
-            type="datetime-local"
-            value={earliest}
-            onChange={(e) => setEarliest(e.target.value)}
-            aria-label="earliest publish date"
-            style={{ padding: 6 }}
-          />
-        </label>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12, color: '#666' }}>Latest</span>
-          <input
-            type="datetime-local"
-            value={latest}
-            onChange={(e) => setLatest(e.target.value)}
-            aria-label="latest publish date"
-            style={{ padding: 6 }}
-          />
-        </label>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Loading…' : 'Search'}
-        </button>
+        <div className={styles.fieldGroup} style={{ flex: '1 1 240px' }}>
+          <label htmlFor="q">คำค้น (Keyword)</label>
+          <input id="q" className={styles.input} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="เช่น AI, climate, energy" autoComplete="off" />
+        </div>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="lang">ภาษา (Language)</label>
+          <select id="lang" className={styles.select} value={lang} onChange={(e) => setLang(e.target.value)}>
+            <option value="th">ไทย (th)</option>
+            <option value="en">English (en)</option>
+            <option value="ja">日本語 (ja)</option>
+            <option value="zh">中文 (zh)</option>
+          </select>
+        </div>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="category">หมวดหมู่</label>
+          <select id="category" className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option value="">ทุกหมวด</option>
+            <option value="business">Business</option>
+            <option value="science">Science</option>
+            <option value="technology">Technology</option>
+            <option value="world">World</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="sports">Sports</option>
+            <option value="health">Health</option>
+            <option value="politics">Politics</option>
+          </select>
+        </div>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="earliest">Earliest</label>
+          <input id="earliest" type="datetime-local" className={styles.input} value={earliest} onChange={(e) => setEarliest(e.target.value)} />
+        </div>
+        <div className={styles.fieldGroup}>
+          <label htmlFor="latest">Latest</label>
+          <input id="latest" type="datetime-local" className={styles.input} value={latest} onChange={(e) => setLatest(e.target.value)} />
+        </div>
+        <div className={styles.actions} style={{ marginTop: 'auto' }}>
+          <button className={styles.buttonPrimary} type="submit" disabled={loading}>{loading ? 'กำลังค้นหา…' : 'ค้นหา'}</button>
+        </div>
       </form>
-      {error ? <p style={{ color: 'crimson' }}>Error: {error}</p> : null}
-      <div style={{ margin: '8px 0' }}>
-        <a href={`/api/worldnews/csv?${params}`}>
-          <button type="button">Download CSV (current query)</button>
-        </a>
+      {loading && (
+        <div className={styles.loadingBarWrapper} aria-hidden>
+          <div className={styles.loadingBar} />
+        </div>
+      )}
+      {error ? <p className={styles.error}>Error: {error}</p> : null}
+      <div className={styles.downloadLink} style={{ margin: '4px 0 14px' }}>
+        <a href={`/api/worldnews/csv?${params}`}><button className={styles.input} style={{ cursor: 'pointer' }} type="button">Download CSV</button></a>
       </div>
-      <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 8 }}>
-        {items.map((n, i) => (
-          <li key={`${n.id || n.url || i}-${i}`} style={{ border: '1px solid #eaeaea', borderRadius: 6, padding: 10 }}>
-            <a href={n.url} target="_blank" rel="noreferrer">
-              <strong>{n.title || 'Untitled'}</strong>
-            </a>
-            <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
-              {n.source ? `Source: ${n.source}` : null}
-              {n.publish_date ? ` • ${new Date(n.publish_date).toLocaleString()}` : null}
-              {n.category ? ` • ${n.category}` : null}
-              {n.language ? ` • ${n.language}` : null}
-            </div>
-            {n.summary ? (
-              <div style={{ marginTop: 6 }}>{n.summary}</div>
-            ) : n.text ? (
-              <div style={{ marginTop: 6 }}>{n.text.slice(0, 200)}{n.text.length > 200 ? '…' : ''}</div>
-            ) : null}
-            {(n.authors && n.authors.length) ? (
-              <div style={{ fontSize: 12, color: '#666', marginTop: 6 }}>
-                Authors: {Array.isArray(n.authors) ? n.authors.join(', ') : n.authors}
+      {!loading && !error && items.length === 0 && (
+        <div className={styles.emptyState}>ยังไม่มีผลลัพธ์ ลองพิมพ์คำค้นแล้วกดค้นหา</div>
+      )}
+      <ul className={styles.resultsGrid}>
+        {items.map((n, i) => {
+          const dateStr = n.publish_date ? new Date(n.publish_date).toLocaleString() : ''
+          return (
+            <li key={`${n.id || n.url || i}-${i}`} className={styles.newsCard}>
+              {n.image ? <img src={n.image} alt="" className={styles.thumb} loading="lazy" /> : null}
+              <h3 className={styles.newsTitle}><a href={n.url} target="_blank" rel="noreferrer">{n.title || 'Untitled'}</a></h3>
+              <div className={styles.meta}>
+                {dateStr && <span>{dateStr}</span>}
+                {n.language && <span>{n.language}</span>}
+                {n.category && <span>{n.category}</span>}
+                {n.source_country && <span>{n.source_country}</span>}
+                {typeof n.sentiment === 'number' && <span>sentiment: {n.sentiment}</span>}
               </div>
-            ) : null}
-          </li>
-        ))}
+              {n.summary ? <div className={styles.summary}>{n.summary}</div> : n.text ? <div className={styles.summary}>{n.text.slice(0,180)}{n.text.length>180?'…':''}</div> : null}
+              {n.authors && n.authors.length ? <div className={styles.authors}>By {Array.isArray(n.authors)?n.authors.join(', '):n.authors}</div> : null}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
