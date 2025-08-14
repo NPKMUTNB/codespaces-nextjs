@@ -23,8 +23,9 @@ function Home() {
 export default Home
 
 function NewsList() {
-  const [query, setQuery] = useState('technology')
+  const [query, setQuery] = useState('')
   const [lang, setLang] = useState('th')
+  const [category, setCategory] = useState('business')
   const [earliest, setEarliest] = useState('') // datetime-local
   const [latest, setLatest] = useState('') // datetime-local
   const [loading, setLoading] = useState(false)
@@ -41,10 +42,11 @@ function NewsList() {
 
   const params = useMemo(() => {
     const p = new URLSearchParams({ q: query, number: '8', lang })
+    if (category) p.set('category', category)
     if (earliest) p.set('earliest-publish-date', fmt(earliest))
     if (latest) p.set('latest-publish-date', fmt(latest))
     return p.toString()
-  }, [query, lang, earliest, latest])
+  }, [query, lang, category, earliest, latest])
 
   useEffect(() => {
     let ignore = false
@@ -96,6 +98,17 @@ function NewsList() {
           <option value="en">English (en)</option>
           <option value="ja">日本語 (ja)</option>
           <option value="zh">中文 (zh)</option>
+        </select>
+        <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="category" style={{ padding: 6 }}>
+          <option value="">ทุกหมวด</option>
+          <option value="business">Business</option>
+          <option value="science">Science</option>
+          <option value="technology">Technology</option>
+          <option value="world">World</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="sports">Sports</option>
+          <option value="health">Health</option>
+          <option value="politics">Politics</option>
         </select>
         <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 12, color: '#666' }}>Earliest</span>

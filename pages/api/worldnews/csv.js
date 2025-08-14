@@ -25,8 +25,8 @@ export default async function handler(req, res) {
   }
 
   try {
-  const { q = '', lang = 'en', number = '10', day, from, to, 'earliest-publish-date': earliest, 'latest-publish-date': latest, key: keyFromQuery } = req.query
-  const data = await fetchWorldNews({ ...pick({ q, lang, number, day, from, to, earliest, latest }, ['q','lang','number','day','from','to','earliest','latest']), apiKey: process.env.WORLDNEWS_API_KEY || keyFromQuery })
+  const { q = '', lang = 'en', number = '10', day, from, to, category, 'earliest-publish-date': earliest, 'latest-publish-date': latest, key: keyFromQuery } = req.query
+  const data = await fetchWorldNews({ ...pick({ q, lang, number, day, from, to, earliest, latest, category }, ['q','lang','number','day','from','to','earliest','latest','category']), apiKey: process.env.WORLDNEWS_API_KEY || keyFromQuery })
     const items = Array.isArray(data?.news) ? data.news : []
 
     const headers = [
